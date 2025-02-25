@@ -65,3 +65,21 @@ module.exports = function productReviews3 () {
     })
   }
 }
+
+module.exports = function productReviews4 () {
+  return (req: Request, res: Response) => {
+    const user = security.authenticatedUsers.from(req)
+    challengeUtils.solveIf(challenges.forgedReviewChallenge, () => { return user && user.data.email !== req.body.author })
+    reviews.insert({
+      product: req.params.id,
+      message: req.body.message,
+      author: req.body.author,
+      likesCount: 0,
+      likedBy: []
+    }).then(() => {
+      res.status(201).json({ status: 'success' })
+    }, (err: unknown) => {
+      res.status(500).json(utils.getErrorMessage(err))
+    })
+  }
+}
